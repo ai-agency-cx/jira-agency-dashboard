@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 [Project Name] - Kanban Board</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 20px; }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .project-info h1 { color: #1e293b; font-size: 1.8rem; }
+        .project-info .subtitle { color: #64748b; margin-top: 5px; font-size: 0.9rem; }
+        
+        .back-link { 
+            color: #0ea5e9; 
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { text-decoration: underline; }
+        
+        .kanban-board { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; 
+            margin-bottom: 30px;
+        }
+        
+        .column { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 15px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        .column-header { 
+            font-weight: 600; 
+            padding-bottom: 10px; 
+            margin-bottom: 15px; 
+            border-bottom: 2px solid; 
+            font-size: 1rem;
+        }
+        
+        .backlog .column-header { color: #64748b; border-color: #94a3b8; }
+        .design .column-header { color: #7c3aed; border-color: #a78bfa; }
+        .progress .column-header { color: #0ea5e9; border-color: #38bdf8; }
+        .ceo-review .column-header { color: #f59e0b; border-color: #fbbf24; background: #fef3c7; padding: 10px; border-radius: 6px; }
+        .done .column-header { color: #10b981; border-color: #34d399; }
+        
+        .cards { min-height: 300px; }
+        
+        .card { 
+            background: #f1f5f9; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            cursor: grab;
+            user-select: none;
+        }
+        .card:active { cursor: grabbing; }
+        .card:hover { background: #e2e8f0; }
+        
+        .card-content { font-size: 0.9rem; }
+        .assignee { 
+            display: inline-block; 
+            font-size: 0.75rem; 
+            background: #cbd5e1; 
+            padding: 2px 6px; 
+            border-radius: 10px; 
+            margin-top: 5px;
+        }
+        
+        .controls { 
+            text-align: center; 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0 5px;
+        }
+        
+        .btn-save { background: #0ea5e9; color: white; }
+        .btn-load { background: #10b981; color: white; }
+        .btn-add { background: #8b5cf6; color: white; }
+        .btn-back { background: #64748b; color: white; }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #0369a1;
+        }
+        
+        .dragging { opacity: 0.5; }
+        .over { background: #f0f9ff; border: 2px dashed #0ea5e9; }
+        
+        @media (max-width: 1200px) {
+            .kanban-board { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .kanban-board { grid-template-columns: 1fr; }
+            header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="project-info">
+                <h1>📋 [Project Name] - Kanban Board</h1>
+                <div class="subtitle">
+                    Path: [project-path] | Status: [project-status]
+                </div>
+            </div>
+            <a href="../projects-dashboard.html" class="back-link">← Back to Projects Dashboard</a>
+        </header>
+        
+        <div class="kanban-board" id="kanbanBoard">
+            <!-- Backlog Column -->
+            <div class="column backlog" data-status="backlog">
+                <div class="column-header">📋 Backlog</div>
+                <div class="cards" id="backlog-cards">
+                    <div class="card" draggable="true" data-id="1">
+                        <div class="card-content">First task</div>
+                        <div class="assignee">@dev</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Design Column -->
+            <div class="column design" data-status="design">
+                <div class="column-header">🎨 Design</div>
+                <div class="cards" id="design-cards"></div>
+            </div>
+            
+            <!-- In Progress Column -->
+            <div class="column progress" data-status="progress">
+                <div class="column-header">🔄 In Progress</div>
+                <div class="cards" id="progress-cards"></div>
+            </div>
+            
+            <!-- CEO Review Column -->
+            <div class="column ceo-review" data-status="ceo-review">
+                <div class="column-header">👑 CEO Review / Blocked</div>
+                <div class="cards" id="ceo-cards"></div>
+            </div>
+            
+            <!-- Done Column -->
+            <div class="column done" data-status="done">
+                <div class="column-header">✅ Done</div>
+                <div class="cards" id="done-cards"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-save" onclick="saveBoard()">💾 Save Board</button>
+            <button class="btn-load" onclick="loadBoard()">📂 Load Saved</button>
+            <button class="btn-add" onclick="addCard()">➕ Add Card</button>
+            <a href="../projects-dashboard.html" class="btn-back">← Dashboard</a>
+            
+            <div class="instructions">
+                <strong>How to use:</strong> Drag cards between columns. Changes auto-save in browser.
+                <strong>CEO Review:</strong> Drag tasks here that need approval or are blocked.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple drag and drop
+        let draggedCard = null;
+        
+        // Make cards draggable
+        document.querySelectorAll('.card').forEach(card => {
+            setupCard(card);
+        });
+        
+        function setupCard(card) {
+            card.addEventListener('dragstart', (e) => {
+                draggedCard = card;
+                card.classList.add('dragging');
+            });
+            
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                draggedCard = null;
+                saveBoard();
+            });
+        }
+        
+        // Setup columns as drop targets
+        document.querySelectorAll('.cards').forEach(column => {
+            column.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                column.classList.add('over');
+            });
+            
+            column.addEventListener('dragleave', () => {
+                column.classList.remove('over');
+            });
+            
+            column.addEventListener('drop', (e) => {
+                e.preventDefault();
+                column.classList.remove('over');
+                
+                if (draggedCard && column !== draggedCard.parentNode) {
+                    column.appendChild(draggedCard);
+                }
+            });
+        });
+        
+        // Save/Load board state
+        function saveBoard() {
+            const state = {
+                backlog: getCardData('backlog-cards'),
+                design: getCardData('design-cards'),
+                progress: getCardData('progress-cards'),
+                ceoReview: getCardData('ceo-cards'),
+                done: getCardData('done-cards')
+            };
+            localStorage.setItem('projectKanban', JSON.stringify(state));
+            console.log('Board saved');
+        }
+        
+        function loadBoard() {
+            const saved = localStorage.getItem('projectKanban');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    
+                    // Clear columns
+                    ['backlog-cards', 'design-cards', 'progress-cards', 'ceo-cards', 'done-cards'].forEach(col => {
+                        document.getElementById(col).innerHTML = '';
+                    });
+                    
+                    // Re-add cards
+                    Object.entries(state).forEach(([column, cards]) => {
+                        const columnId = column === 'ceoReview' ? 'ceo-cards' : `${column}-cards`;
+                        const container = document.getElementById(columnId);
+                        
+                        cards.forEach(cardData => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            card.draggable = true;
+                            card.innerHTML = `
+                                <div class="card-content">${cardData.content}</div>
+                                <div class="assignee">${cardData.assignee}</div>
+                            `;
+                            container.appendChild(card);
+                            setupCard(card);
+                        });
+                    });
+                    
+                    alert('Board loaded!');
+                } catch (e) {
+                    alert('Error loading: ' + e.message);
+                }
+            } else {
+                alert('No saved board found.');
+            }
+        }
+        
+        function getCardData(columnId) {
+            const cards = document.getElementById(columnId).querySelectorAll('.card');
+            return Array.from(cards).map(card => ({
+                content: card.querySelector('.card-content').textContent,
+                assignee: card.querySelector('.assignee').textContent
+            }));
+        }
+        
+        // Add new card
+        function addCard() {
+            const content = prompt('Enter task:');
+            if (!content) return;
+            
+            const assignee = prompt('Assign to (@pm, @dev, @qa, @architect):', '@dev');
+            const column = prompt('Column? (backlog, design, progress, ceo-review, done):', 'backlog');
+            
+            const columnId = column === 'ceo-review' ? 'ceo-cards' : `${column}-cards`;
+            const container = document.getElementById(columnId);
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.innerHTML = `
+                <div class="card-content">${content}</div>
+                <div class="assignee">${assignee || '@dev'}</div>
+            `;
+            
+            container.appendChild(card);
+            setupCard(card);
+            saveBoard();
+        }
+        
+        // Auto-save every 30 seconds
+        setInterval(saveBoard, 30000);
+        
+        // Load on startup
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('projectKanban');
+            if (saved) {
+                if (confirm('Load saved board?')) {
+                    loadBoard();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

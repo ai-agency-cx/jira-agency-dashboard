@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Jira Agency - Projects Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 20px; }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #1e293b; font-size: 2rem; }
+        .subtitle { color: #64748b; margin-top: 5px; }
+        
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .project-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #0ea5e9;
+            transition: transform 0.2s;
+        }
+        .project-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        .project-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
+        .project-title { font-weight: 600; font-size: 1.2rem; color: #1e293b; }
+        .project-type { 
+            font-size: 0.75rem; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            background: #e0f2fe; 
+            color: #0369a1;
+        }
+        .client-type { background: #f0f9ff; color: #0c4a6e; }
+        .personal-type { background: #f3e8ff; color: #7c3aed; }
+        
+        .project-info { margin-bottom: 15px; }
+        .info-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.9rem; color: #475569; }
+        
+        .project-status { 
+            padding: 8px 12px; 
+            background: #f1f5f9; 
+            border-radius: 6px; 
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        .status-active { border-left: 3px solid #10b981; }
+        .status-blocked { border-left: 3px solid #ef4444; }
+        .status-planning { border-left: 3px solid #8b5cf6; }
+        
+        .team-members { display: flex; gap: 5px; margin-bottom: 15px; }
+        .member { 
+            width: 30px; height: 30px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: white;
+        }
+        .member-pm { background: #0ea5e9; }
+        .member-dev { background: #10b981; }
+        .member-qa { background: #f59e0b; }
+        .member-arch { background: #8b5cf6; }
+        
+        .project-actions { display: flex; gap: 10px; }
+        .btn { 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-kanban { background: #0ea5e9; color: white; }
+        .btn-todo { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-repo { background: #1e293b; color: white; }
+        
+        .btn:hover { opacity: 0.9; }
+        
+        .add-project {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .add-project:hover {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+        
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #10b981;
+        }
+        
+        @media (max-width: 768px) {
+            .projects-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Jira Agency Projects Dashboard</h1>
+            <p class="subtitle">Click any project to open its Kanban board</p>
+        </header>
+        
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Infralyze Consulting Project -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-title">Infralyze Consulting Website</div>
+                    <div class="project-type client-type">Client Project</div>
+                </div>
+                
+                <div class="project-info">
+                    <div class="info-item">📍 <strong>Path:</strong> clients_projects/infralyze-consulting/</div>
+                    <div class="info-item">📁 <strong>Repo:</strong> ai-agency-cx/infralyze-consulting</div>
+                    <div class="info-item">🌐 <strong>Live:</strong> https://ai-agency-cx.github.io/infralyze-consulting/</div>
+                </div>
+                
+                <div class="project-status status-blocked">
+                    ⚠️ <strong>Status:</strong> Phase 2 testing blocked - branding update needed
+                </div>
+                
+                <div class="team-members">
+                    <div class="member member-pm" title="@pm">PM</div>
+                    <div class="member member-dev" title="@dev">DEV</div>
+                    <div class="member member-qa" title="@qa">QA</div>
+                    <div class="member member-arch" title="@architect">ARCH</div>
+                </div>
+                
+                <div class="project-actions">
+                    <a href="infralyze-kanban.html" class="btn btn-kanban">📋 Open Kanban</a>
+                    <a href="clients_projects/infralyze-consulting/TODO.md" class="btn btn-todo" target="_blank">📝 View TODO</a>
+                    <a href="https://github.com/ai-agency-cx/infralyze-consulting" class="btn btn-repo" target="_blank">🐙 GitHub</a>
+                </div>
+            </div>
+            
+            <!-- New Project Template -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-title">[New Project]</div>
+                    <div class="project-type personal-type">Personal Project</div>
+                </div>
+                
+                <div class="project-info">
+                    <div class="info-item">📍 <strong>Path:</strong> personal_projects/</div>
+                    <div class="info-item">📁 <strong>Repo:</strong> To be created</div>
+                    <div class="info-item">🎯 <strong>Status:</strong> Planning phase</div>
+                </div>
+                
+                <div class="project-status status-planning">
+                    📋 <strong>Status:</strong> Submit proposal in pitch_deck/
+                </div>
+                
+                <div class="team-members">
+                    <div class="member member-arch" title="@architect">ARCH</div>
+                </div>
+                
+                <div class="project-actions">
+                    <button class="btn btn-kanban" onclick="createNewProject()">➕ New Project</button>
+                    <a href="pitch_deck/project-template.md" class="btn btn-todo" target="_blank">📋 Use Template</a>
+                </div>
+            </div>
+            
+            <!-- Add New Project Card -->
+            <div class="add-project" onclick="showAddProjectForm()">
+                <div style="font-size: 2rem; margin-bottom: 10px;">➕</div>
+                <div style="font-weight: 500;">Add New Project</div>
+                <div style="font-size: 0.9rem; margin-top: 5px;">Click to create a new project</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3 style="margin-bottom: 10px;">How This Works:</h3>
+            <p><strong>1. Project Dashboard</strong> (this page) - Lists all active projects</p>
+            <p><strong>2. Per-Project Kanban</strong> - Click "Open Kanban" for task management</p>
+            <p><strong>3. Special "CEO Review" Lane</strong> - Tasks waiting for your input</p>
+            <p><strong>4. Auto-sync</strong> - Kanban boards save in your browser</p>
+            <p><strong>5. Scalable</strong> - Works for 1 project or 100 projects</p>
+            
+            <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 6px;">
+                <strong>💡 Tip:</strong> Each project maintains its own TODO.md and Kanban board.
+                The dashboard gives you a bird's-eye view of everything.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Project data - in a real app, this would be loaded from a JSON file
+        const projects = [
+            {
+                id: 'infralyze',
+                name: 'Infralyze Consulting Website',
+                type: 'client',
+                path: 'clients_projects/infralyze-consulting/',
+                repo: 'ai-agency-cx/infralyze-consulting',
+                liveUrl: 'https://ai-agency-cx.github.io/infralyze-consulting/',
+                status: 'blocked',
+                statusText: 'Phase 2 testing blocked - branding update needed',
+                team: ['pm', 'dev', 'qa', 'arch'],
+                kanbanFile: 'infralyze-kanban.html'
+            }
+        ];
+        
+        function createNewProject() {
+            const projectName = prompt('Enter project name:');
+            if (!projectName) return;
+            
+            const projectType = confirm('Is this a client project? (OK for Client, Cancel for Personal)') ? 'client' : 'personal';
+            const path = projectType === 'client' ? 'clients_projects/' : 'personal_projects/';
+            
+            alert(`Project "${projectName}" added!\n\nNext steps:\n1. Create directory: ${path}${projectName.toLowerCase().replace(/\s+/g, '-')}/\n2. Add project to pitch_deck/ for planning\n3. @architect will create initial structure`);
+            
+            // In a real implementation, this would create files/directories
+            console.log(`New project: ${projectName}, Type: ${projectType}, Path: ${path}`);
+        }
+        
+        function showAddProjectForm() {
+            createNewProject();
+        }
+        
+        // Save projects to localStorage
+        function saveProjects() {
+            localStorage.setItem('jiraAgencyProjects', JSON.stringify(projects));
+        }
+        
+        // Load projects from localStorage
+        function loadProjects() {
+            const saved = localStorage.getItem('jiraAgencyProjects');
+            if (saved) {
+                // In a real app, we'd update the UI with saved projects
+                console.log('Loaded projects from storage');
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            loadProjects();
+            console.log('Projects dashboard loaded');
+        });
+    </script>
+</body>
+</html>
