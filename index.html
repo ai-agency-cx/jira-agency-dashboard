@@ -1,73 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Jira Agency Dashboard</title>
+    <title>Jira Agency Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 40px; text-align: center; }
-        h1 { color: #1e293b; font-size: 2.5rem; margin-bottom: 10px; }
-        .subtitle { color: #64748b; font-size: 1.1rem; margin-bottom: 30px; }
-        .links { margin-top: 40px; }
-        .btn { 
-            display: inline-block; 
-            padding: 14px 28px; 
-            margin: 10px; 
-            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%); 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        .btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
-        }
-        .status { 
-            margin-top: 30px; 
-            padding: 15px; 
-            background: #f0f9ff; 
-            border-radius: 8px;
-            display: inline-block;
-            color: #0369a1;
-        }
-        .live-badge {
-            background: #10b981;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-left: 10px;
-        }
+        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #1e293b; margin-bottom: 30px; text-align: center; }
+        .card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #0f172a; margin-bottom: 15px; }
+        p { color: #475569; margin-bottom: 20px; line-height: 1.6; }
+        .links { display: grid; gap: 15px; }
+        .link { display: block; background: #0ea5e9; color: white; text-decoration: none; padding: 15px 20px; border-radius: 8px; text-align: center; font-weight: 600; transition: background 0.2s; }
+        .link:hover { background: #0284c7; }
+        .link.secondary { background: #64748b; }
+        .link.secondary:hover { background: #475569; }
+        .timestamp { color: #94a3b8; font-size: 0.9rem; margin-top: 30px; text-align: center; }
     </style>
 </head>
 <body>
-    <h1>🚀 Jira Agency Dashboard <span class="live-badge">LIVE</span></h1>
-    <p class="subtitle">Project management dashboard for AI agency workflow</p>
-    
-    <div class="links">
-        <a href="enhanced-dashboard.html" class="btn">🚀 Enhanced CEO Dashboard</a>
-        <a href="projects-dashboard.html" class="btn">📊 Projects Dashboard</a>
-        <a href="projects/infralyze-kanban.html" class="btn">📋 Infralyze Kanban</a>
-        <a href="project-template/kanban-template.html" class="btn">🎨 Kanban Template</a>
-    </div>
-    
-    <div class="status">
-        <strong>✅ Deployed:</strong> 2026-02-28 | 
-        <strong>🔗 Repo:</strong> <a href="https://github.com/ai-agency-cx/jira-agency-dashboard" style="color: #0ea5e9;">ai-agency-cx/jira-agency-dashboard</a>
-    </div>
-    
-    <div style="margin-top: 50px; color: #94a3b8; font-size: 0.9rem;">
-        <p>Features: Drag & drop Kanban • CEO Review lane • Auto-save • Multi-project support</p>
+    <div class="container">
+        <h1>🚀 Jira Agency Dashboard</h1>
+        
+        <div class="card">
+            <h2>📋 Project Management</h2>
+            <p>Real-time Kanban boards and project tracking for the AI agency.</p>
+            <div class="links">
+                <a href="infralyze-kanban.html" class="link">Infralyze Consulting Kanban Board</a>
+                <a href="simple-kanban.html" class="link secondary">Simple Kanban Board (Template)</a>
+                <a href="projects-dashboard.html" class="link secondary">Projects Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔧 Agency Tools</h2>
+            <p>Internal tools and scripts for agent automation.</p>
+            <div class="links">
+                <a href="https://github.com/ai-agency-cx" class="link secondary" target="_blank">GitHub Organization</a>
+                <a href="https://ai-agency-cx.github.io/infralyze-consulting/" class="link secondary" target="_blank">Infralyze Live Site</a>
+            </div>
+        </div>
+        
+        <div class="timestamp">
+            Last updated: $(date)
+        </div>
     </div>
 </body>
 </html>
-<!-- Test commit -->
-
-<!-- PR Test from aiagencycx-dot: Sat Feb 28 09:34:26 PM UTC 2026 -->
-
-<!-- PROPER FORK TEST: Sat Feb 28 09:35:27 PM UTC 2026 -->
-<!-- This tests PR workflow from aiagencycx-dot -->
