@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Jira Agency - Enhanced Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header-left h1 {
+            color: #1e293b;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-left .subtitle {
+            color: #64748b;
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+        
+        .live-indicator {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        /* CEO Dashboard Section */
+        .ceo-dashboard {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #0ea5e9;
+        }
+        
+        .ceo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .ceo-header h2 {
+            color: #0c4a6e;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0ea5e9;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .critical-alerts {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-top: 5px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #0ea5e9, #8b5cf6);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        
+        .project-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #1e293b;
+        }
+        
+        .project-badge {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .badge-client { background: #dbeafe; color: #1d4ed8; }
+        .badge-personal { background: #f3e8ff; color: #7c3aed; }
+        .badge-kanban { background: #dcfce7; color: #166534; }
+        
+        .project-health {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .health-bar {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .health-good { background: #10b981; }
+        .health-warning { background: #f59e0b; }
+        .health-critical { background: #ef4444; }
+        
+        .project-meta {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
+        .team-avatars {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .avatar-pm { background: linear-gradient(135deg, #0ea5e9, #3b82f6); }
+        .avatar-dev { background: linear-gradient(135deg, #10b981, #059669); }
+        .avatar-qa { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .avatar-arch { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        
+        .project-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary { background: #0ea5e9; color: white; }
+        .btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-github { background: #1e293b; color: white; }
+        
+        /* Real-time Activity */
+        .activity-feed {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .activity-header h3 {
+            color: #1e293b;
+            font-size: 1.3rem;
+        }
+        
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        .activity-time {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .quick-stats { grid-template-columns: 1fr; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .project-actions { grid-template-columns: 1fr; }
+        }
+        
+        /* PWA Install Prompt */
+        .pwa-install {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>🚀 Jira Agency Command Center</h1>
+                <p class="subtitle">CEO Dashboard • Real-time Updates • Multi-project Management</p>
+            </div>
+            <div class="live-indicator">
+                <span>●</span> LIVE UPDATES
+            </div>
+        </div>
+        
+        <!-- CEO Dashboard -->
+        <div class="ceo-dashboard">
+            <div class="ceo-header">
+                <h2>👑 CEO Dashboard</h2>
+                <div style="color: #0c4a6e; font-weight: 600;">Last updated: <span id="lastUpdated">Just now</span></div>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="activeProjects">2</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingReview">3</div>
+                    <div class="stat-label">Tasks for Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="teamActivity">87%</div>
+                    <div class="stat-label">Team Activity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="githubSync">✓</div>
+                    <div class="stat-label">GitHub Sync Active</div>
+                </div>
+            </div>
+            
+            <div class="critical-alerts" id="criticalAlerts" style="display: none;">
+                <strong>🚨 Critical Alert:</strong> <span id="alertText"></span>
+            </div>
+        </div>
+        
+        <!-- Projects Grid -->
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Infralyze Consulting -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-title">Infralyze Consulting Website</div>
+                    <div class="project-badge badge-client">Client Project</div>
+                </div>
+                
+                <div class="project-health">
+                    <span style="color: #475569; font-size: 0.9rem;">Health:</span>
+                    <div class="health-bar">
+                        <div class="health-fill health-warning" style="width: 65%;"></div>
+                    </div>
+                    <span style="color: #f59e0b; font-weight: 600;">65%</span>
+                </div>
+                
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <span>📁</span>
+                        <span><strong>Repo:</strong> ai-agency-cx/infralyze-consulting</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>🌐</span>
+                        <span><strong>Live:</strong> https://ai-agency-cx.github.io/infralyze-consulting/</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>⚡</span>
+                        <span><strong>Status:</strong> Phase 2 testing in progress</span>
+                    </div>
+                </div>
+                
+                <div class="team-avatars">
+                    <div class="avatar avatar-pm" title="@pm">PM</div>
+                    <div class="avatar avatar-dev" title="@dev">DEV</div>
+                    <div class="avatar avatar-qa" title="@qa">QA</div>
+                    <div class="avatar avatar-arch" title="@architect">ARCH</div>
+                </div>
+                
+                <div class="project-actions">
+                    <a href="../kanban/infralyze-kanban.html" class="action-btn btn-primary">
+                        📋 Kanban Board
+                    </a>
+                    <a href="https://github.com/ai-agency-cx/infralyze-consulting" target="_blank" class="action-btn btn-github">
+                        🐙 GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Kanban System Project -->
+            <div class="project-card">
+                <div class="project-header">
+                    <div class="project-title">World-Class Kanban System</div>
+                    <div class="project-badge badge-kanban">Agency Core</div>
+                </div>
+                
+                <div class="project-health">
+                    <span style="color: #475569; font-size: 0.9rem;">Health:</span>
+                    <div class="health-bar">
+                        <div class="health-fill health-good" style="width: 85%;"></div>
+                    </div>
+                    <span style="color: #10b981; font-weight: 600;">85%</span>
+                </div>
+                
+                <div class="project-meta">
+                    <div class="meta-item">
+                        <span>📁</span>
+                        <span><strong>Repo:</strong> ai-agency-cx/jira-agency-dashboard</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>🌐</span>
+                        <span><strong>Live:</strong> https://ai-agency-cx.github.io/jira-agency-dashboard/</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>⚡</span>
+                        <span><strong>Status:</strong> MVP planning in progress</span>
+                    </div>
+                </div>
+                
+                <div class="team-avatars">
+                    <div class="avatar avatar-pm" title="@pm">PM</div>
+                    <div class="avatar avatar-arch" title="@architect">ARCH</div>
+                    <div class="avatar avatar-dev" title="@dev">DEV</div>
+                    <div class="avatar avatar-qa" title="@qa">QA</div>
+                </div>
+                
+                <div class="project-actions">
+                    <a href="projects-dashboard.html" class="action-btn btn-primary">
+                        📊 Current Dashboard
+                    </a>
+                    <a href="https://github.com/ai-agency-cx/jira-agency-dashboard" target="_blank" class="action-btn btn-github">
+                        🐙 GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Add New Project -->
+            <div class="project-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px dashed #0ea5e9; cursor: pointer;" onclick="showAddProjectForm()">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 15px; color: #0ea5e9;">➕</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #0c4a6e; margin-bottom: 10px;">
+                        Add New Project
+                    </div>
+                    <div style="color: #475569; font-size: 0.95rem;">
+                        Click to create a new project in under 30 seconds
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Real-time Activity Feed -->
+        <div class="activity-feed">
+            <div class="activity-header">
+                <h3>📈 Real-time Activity</h3>
+                <div style="color: #64748b; font-size: 0.9rem;">Auto-updates every 10 seconds</div>
+            </div>
+            
+            <div class="activity-list" id="activityList">
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #dbeafe; color: #1d4ed8;">📋</div>
+                    <div class="activity-content">
+                        <div class="activity-text">@pm created MVP spec for Kanban system</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #dcfce7; color: #166534;">🚀</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Enhanced dashboard deployed with CEO view</div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #fef3c7; color: #d97706;">🔧</div>
+                    <div class="activity-content">
+                        <div class="activity-text">@architect reviewing technical architecture</div>
+                        <div class="activity-time">5 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: #fee2e2; color: #dc2626;">⚠️</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Infralyze Phase 2 testing requires CEO review</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PWA Install Prompt -->
+        <div class="pwa-install" id="pwaInstall">
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #1e293b;">📱 Install as App</strong>
+                <div style="color: #64748b; font-size: 0.9rem; margin-top: 5px;">
+                    Access your dashboard anywhere, even offline
+                </div>
+            </div>
+            <button class="action-btn btn-primary" style="width: 100%;" onclick="installPWA()">
+                Install App
+            </button>
+            <button class="action-btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="hidePWAInstall()">
+                Not Now
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Real-time simulation
+        let activityCounter = 0;
+        const activities = [
+            { icon: "📋", bg: "#dbeafe", color: "#1d4ed8", text: "@dev working on GitHub integration", time: "Just now" },
+            { icon: "⚡", bg: "#dcfce7", color: "#166534", text: "Real-time sync enabled for all projects", time: "30 seconds ago" },
+            { icon: "👑", bg: "#fef3c7", color: "#d97706", text: "CEO dashboard metrics updated", time: "1 minute ago" },
+            { icon: "📱", bg: "#e0f2fe", color: "#0c4a6e", text: "Mobile PWA ready for testing", time: "2 minutes ago" },
+            { icon: "🔗", bg: "#f3e8ff", color: "#7c3aed", text: "GitHub webhook configured", time: "3 minutes ago" }
+        ];
+        
+        function updateActivity() {
+            activityCounter++;
+            if (activityCounter >= activities.length) activityCounter = 0;
+            
+            const activity = activities[activityCounter];
+            const activityList = document.getElementById('activityList');
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'activity-item';
+            newItem.innerHTML = `
+                <div class="activity-icon" style="background: ${activity.bg}; color: ${activity.color};">${activity.icon}</div>
+                <div class="activity-content">
+                    <div class="activity-text">${activity.text}</div>
+                    <div class="activity-time">${activity.time}</div>
+                </div>
+            `;
+            
+            // Add new item at top
+            activityList.insertBefore(newItem, activityList.firstChild);
+            
+            // Remove oldest item if more than 4
+            if (activityList.children.length > 4) {
+                activityList.removeChild(activityList.lastChild);
+            }
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Randomly update stats
+            if (Math.random() > 0.7) {
+                const stats = ['activeProjects', 'pendingReview', 'teamActivity'];
+                const randomStat = stats[Math.floor(Math.random() * stats.length)];
+                const statElement = document.getElementById(randomStat);
+                
+                if (randomStat === 'activeProjects') {
+                    statElement.textContent = Math.floor(Math.random() * 2) + 2;
+                } else if (randomStat === 'pendingReview') {
+                    statElement.textContent = Math.floor(Math.random() * 3) + 1;
+                } else if (randomStat === 'teamActivity') {
+                    statElement.textContent = Math.floor(Math.random() * 15) + 80 + '%';
+                }
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start real-time updates
+            setInterval(updateActivity, 10000); // Every 10 seconds
+            
+            // Show PWA install prompt after 5 seconds
+            setTimeout(() => {
+                if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
+                    document.getElementById('pwaInstall').style.display = 'block';
+                }
+            }, 5000);
+            
+            // Check for critical alerts
+            checkCriticalAlerts();
+        });
+        
+        function checkCriticalAlerts() {
+            // Simulate checking for critical issues
+            const hasCritical = Math.random() > 0.7;
+            
+            if (hasCritical) {
+                const alerts = [
+                    "Infralyze Phase 2 testing blocked - requires CEO review",
+                    "GitHub API rate limit approaching",
+                    "Server response time above threshold"
+                ];
+                
+                const randomAlert = alerts[Math.floor(Math.random() * alerts.length)];
+                document.getElementById('alertText').textContent = randomAlert;
+                document.getElementById('criticalAlerts').style.display = 'block';
+            }
+        }
+        
+        function showAddProjectForm() {
+            alert('🚀 Quick Project Creation\n\nThis feature will allow you to:\n1. Name your project\n2. Select project type\n3. Assign team members\n4. Auto-create GitHub repo\n5. Generate Kanban board\n\n⏱️ Estimated time: <30 seconds\n\n(Implementation in progress)');
+        }
+        
+        function installPWA() {
+            alert('📱 PWA Installation\n\nThis would trigger the browser\'s "Add to Home Screen" prompt.\n\nFor now, on mobile:\n1. Open browser menu\n2. Tap "Add to Home Screen"\n3. Name it "Jira Agency"\n4. Enjoy app-like experience!');
+            hidePWAInstall();
+        }
+        
+        function hidePWAInstall() {
+            document.getElementById('pwaInstall').style.display = 'none';
+        }
+        
+        // GitHub Integration Simulation
+        function createGitHubIssue(project, title) {
+            alert(`📝 GitHub Issue Created\n\nProject: ${project}\nTitle: ${title}\n\n✅ Issue created in GitHub\n✅ Linked to Kanban board\n✅ Team notified\n\nNext: Auto-assign based on agent availability`);
+        }
+    </script>
+</body>
+</html>

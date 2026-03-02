@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Events Monitor - Jira Agency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-connected {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-disconnected {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .events-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .event {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .event-type {
+            font-weight: 600;
+            color: #1e40af;
+        }
+        
+        .event-time {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .event-details {
+            color: #374151;
+            line-height: 1.5;
+        }
+        
+        .event-pr {
+            border-left-color: #10b981;
+        }
+        
+        .event-pr .event-type {
+            color: #10b981;
+        }
+        
+        .event-issue {
+            border-left-color: #f59e0b;
+        }
+        
+        .event-issue .event-type {
+            color: #f59e0b;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .connection-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-dot.connected {
+            background: #10b981;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GitHub Events Monitor</h1>
+            <p>Real-time GitHub webhook integration with Jira Agency Kanban</p>
+        </div>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2>Connection Status</h2>
+                <div class="connection-status">
+                    <div class="connection-dot" id="connectionDot"></div>
+                    <span id="connectionStatus">Connecting to backend...</span>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalEvents">0</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="prEvents">0</div>
+                        <div class="stat-label">PR Events</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="issueEvents">0</div>
+                        <div class="stat-label">Issue Events</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn-primary" onclick="sendTestPRMerged()">
+                        📤 Test PR Merged
+                    </button>
+                    <button class="btn-secondary" onclick="sendTestIssueOpened()">
+                        🎯 Test Issue Opened
+                    </button>
+                    <button class="btn-success" onclick="clearEvents()">
+                        🧹 Clear Events
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Recent Events <span class="status-badge status-connected" id="eventsCount">0 events</span></h2>
+                <div class="events-container" id="eventsContainer">
+                    <div class="empty-state">
+                        <div>📭</div>
+                        <p>Waiting for GitHub events...</p>
+                        <p>Events will appear here in real-time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Webhook Information</h2>
+            <div id="webhookInfo">
+                <p>Loading webhook configuration...</p>
+            </div>
+            <div class="controls">
+                <button class="btn-secondary" onclick="checkWebhookStatus()">
+                    🔄 Refresh Status
+                </button>
+                <button class="btn-primary" onclick="openBackendLogs()">
+                    📋 View Backend Logs
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Configuration
+        const BACKEND_URL = 'http://localhost:3000';
+        let socket = null;
+        let events = [];
+        let eventCounts = {
+            total: 0,
+            pr: 0,
+            issue: 0
+        };
+
+        // Initialize Socket.io connection
+        function initSocket() {
+            socket = io(BACKEND_URL);
+            
+            socket.on('connect', () => {
+                updateConnectionStatus(true);
+                console.log('✅ Connected to backend');
+                
+                // Request initial data
+                socket.emit('request:initial-data');
+            });
+            
+            socket.on('disconnect', () => {
+                updateConnectionStatus(false);
+                console.log('❌ Disconnected from backend');
+            });
+            
+            // Listen for GitHub events
+            socket.on('github:event', (event) => {
+                console.log('📨 GitHub event received:', event);
+                addEvent(event);
+            });
+            
+            // Listen for Kanban updates
+            socket.on('kanban:updated', (update) => {
+                console.log('📊 Kanban updated:', update);
+                addEvent({
+                    type: 'kanban_updated',
+                    ...update,
+                    source: 'kanban'
+                });
+            });
+            
+            // Listen for initial data
+            socket.on('initial:data', (data) => {
+                console.log('📦 Initial data received:', data);
+                // Could populate with existing events from database
+            });
+        }
+
+        // Update connection status UI
+        function updateConnectionStatus(connected) {
+            const dot = document.getElementById('connectionDot');
+            const status = document.getElementById('connectionStatus');
+            
+            if (connected) {
+                dot.className = 'connection-dot connected';
+                status.textContent = 'Connected to backend';
+                status.style.color = '#10b981';
+            } else {
+                dot.className = 'connection-dot';
+                status.textContent = 'Disconnected from backend';
+                status.style.color = '#ef4444';
+            }
+        }
+
+        // Add event to UI
+        function addEvent(event) {
+            // Update counters
+            eventCounts.total++;
+            if (event.type.includes('pr')) eventCounts.pr++;
+            if (event.type.includes('issue')) eventCounts.issue++;
+            
+            updateCounters();
+            
+            // Create event element
+            const eventsContainer = document.getElementById('eventsContainer');
+            const emptyState = eventsContainer.querySelector('.empty-state');
+            
+            // Remove empty state if it exists
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const eventElement = document.createElement('div');
+            eventElement.className = `event ${event.type.includes('pr') ? 'event-pr' : ''} ${event.type.includes('issue') ? 'event-issue' : ''}`;
+            
+            const time = new Date(event.timestamp || Date.now()).toLocaleTimeString();
+            const date = new Date(event.timestamp || Date.now()).toLocaleDateString();
+            
+            eventElement.innerHTML = `
+                <div class="event-header">
+                    <span class="event-type">${getEventTypeLabel(event.type)}</span>
+                    <span class="event-time">${date} ${time}</span>
+                </div>
+                <div class="event-details">
+                    ${getEventDetails(event)}
+                </div>
+            `;
+            
+            // Add to top of container
+            eventsContainer.insertBefore(eventElement, eventsContainer.firstChild);
+            
+            // Keep only last 20 events
+            const allEvents = eventsContainer.querySelectorAll('.event');
+            if (allEvents.length > 20) {
+                allEvents[allEvents.length - 1].remove();
+            }
+            
+            // Store event
+            events.unshift(event);
+            if (events.length > 50) events.pop();
+        }
+
+        // Get human-readable event type
+        function getEventTypeLabel(type) {
+            const labels = {
+                'pr_merged': '✅ PR Merged',
+                'pr_opened': '📝 PR Opened',
+                'pr_review_requested': '👀 Review Requested',
+                'issue_opened': '🎯 Issue Opened',
+                'issue_closed': '✅ Issue Closed',
+                'kanban_updated': '📊 Kanban Updated'
+            };
+            return labels[type] || type;
+        }
+
+        // Get event details HTML
+        function getEventDetails(event) {
+            switch (event.type) {
+                case 'pr_merged':
+                    return `PR #${event.pr} merged: <strong>${event.title}</strong><br>
+                            Repository: ${event.repo}<br>
+                            Kanban card: ${event.cardId || 'Not mapped'}`;
+                
+                case 'pr_opened':
+                    return `PR #${event.pr} opened: <strong>${event.title}</strong><br>
+                            Repository: ${event.repo}`;
+                
+                case 'issue_opened':
+                    return `Issue #${event.issue} opened: <strong>${event.title}</strong><br>
+                            Repository: ${event.repo}`;
+                
+                case 'kanban_updated':
+                    return `Kanban card ${event.cardId} moved to <strong>${event.newStatus}</strong><br>
+                            Reason: ${event.reason}`;
+                
+                default:
+                    return JSON.stringify(event, null, 2);
+            }
+        }
+
+        // Update counter displays
+        function updateCounters() {
+            document.getElementById('totalEvents').textContent = eventCounts.total;
+            document.getElementById('prEvents').textContent = eventCounts.pr;
+            document.getElementById('issueEvents').textContent = eventCounts.issue;
+            document.getElementById('eventsCount').textContent = `${eventCounts.total} events`;
+        }
+
+        // Send test PR merged event
+        async function sendTestPRMerged() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/github/webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-GitHub-Event': 'pull_request'
+                    },
+                    body: JSON.stringify({
+                        action: 'closed',
+                        pull_request: {
+                            number: 2,
+                            title: 'Test PR - Phase 2 features',
+                            state: 'closed',
+                            merged: true,
+                            merged_at: new Date().toISOString()
+                        },
+                        repository: {
+                            name: 'infralyze-consulting',
+                            full_name: 'ai-agency-cx/infralyze-consulting'
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Test PR merged event sent');
+                    addEvent({
+                        type: 'test_pr_merged',
+                        pr: 2,
+                        title: 'Test PR - Phase 2 features',
+                        repo: 'infralyze-consulting',
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    console.error('❌ Failed to send test event:', await response.text());
+                }
+            } catch (error) {
+                console.error('❌ Error sending test event:', error);
+            }
+        }
+
+        // Send test issue opened event
+        async function sendTestIssueOpened() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/github/webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-GitHub-Event': 'issues'
+                    },
+                    body: JSON.stringify({
+                        action: 'opened',
+                        issue: {
+                            number: Math.floor(Math.random() * 100) + 10,
+                            title: 'Test Issue - Feature request',
+                            body: 'This is a test issue created from the monitoring dashboard.',
+                            assignee: { login: '@dev' },
+                            labels: [{ name: 'test' }, { name: 'enhancement' }]
+                        },
+                        repository: {
+                            name: 'infralyze-consulting',
+                            full_name: 'ai-agency-cx/infralyze-consulting'
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Test issue opened event sent');
+                } else {
+                    console.error('❌ Failed to send test event:', await response.text());
+                }
+            } catch (error) {
+                console.error('❌ Error sending test event:', error);
+            }
+        }
+
+        // Clear events
+        function clearEvents() {
+            events = [];
+            eventCounts = { total: 0, pr: 0, issue: 0 };
+            updateCounters();
+            
+            const eventsContainer = document.getElementById('eventsContainer');
+            eventsContainer.innerHTML = `
+                <div class="empty-state">
+                    <div>📭</div>
+                    <p>Events cleared</p>
+                    <p>Waiting for new GitHub events...</p>
+                </div>
+            `;
+        }
+
+        // Check webhook status
+        async function checkWebhookStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/github/webhook/status`);
+                const status = await response.json();
+                
+                const webhookInfo = document.getElementById('webhookInfo');
+                webhookInfo.innerHTML = `
+                    <p><strong>Status:</strong> ${status.enabled ? '✅ Enabled' : '❌ Disabled'}</p>
+                    <p><strong>Secret Configured:</strong> ${status.secret_configured ? '✅ Yes' : '⚠️ No (using default)'}</p>
+                    <p><strong>Endpoint:</strong> <code>${status.endpoint}</code></p>
+                    <p><strong>Supported Events:</strong> ${status.supported_events.join(', ')}</p>
+                    <p><strong>Mapped Repositories:</strong> ${status.mappings.join(', ') || 'None'}</p>
+                `;
+            } catch (error) {
+                console.error('❌ Error checking webhook status:', error);
+            }
+        }
+
+        // Open backend logs (simulated)
+        function openBackendLogs() {
+            alert('Backend logs would open here.\n\nCheck the terminal where you started the backend server for real-time logs.');
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            initSocket();
+            checkWebhookStatus();
+            
+            // Add some initial test events
+            setTimeout(() => {
+                addEvent({
+                    type: 'system_start',
+                    message: 'GitHub Events Monitor started',
+                    timestamp: new Date().toISOString()
+                });
+                
+                addEvent({
+                    type: 'webhook_connected',
+                    message: 'Connected to backend webhook endpoint',
+                    timestamp: new Date().toISOString()
+                });
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

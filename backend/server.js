@@ -1,0 +1,550 @@
+#!/usr/bin/env node
+
+/**
+ * Jira Agency Kanban - Backend Prototype
+ * Simple Node.js server for real-time Kanban
+ * Phase 1: MVP with SQLite and Socket.io
+ */
+
+const express = require('express');
+const http = require('http');
+const GitHubWebhook = require('./github-webhook');
+const socketIo = require('socket.io');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const cors = require('cors');
+
+// Initialize app
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '../active_projects/jira-agency-dashboard')));
+
+// Database setup
+const db = new sqlite3.Database('./kanban.db', (err) => {
+  if (err) {
+    console.error('Database connection error:', err);
+  } else {
+    console.log('Connected to SQLite database');
+    initializeDatabase();
+  }
+});
+
+// Initialize GitHub Webhook integration
+const githubWebhook = new GitHubWebhook(db, io);
+
+function initializeDatabase() {
+  // Projects table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      type TEXT DEFAULT 'client',
+      status TEXT DEFAULT 'active',
+      health_score INTEGER DEFAULT 100,
+      ceo_priority INTEGER DEFAULT 3,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Tasks table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER,
+      title TEXT NOT NULL,
+      description TEXT,
+      status TEXT DEFAULT 'todo',
+      priority TEXT DEFAULT 'medium',
+      assigned_to TEXT,
+      estimated_hours INTEGER,
+      actual_hours INTEGER DEFAULT 0,
+      github_issue_id TEXT,
+      needs_ceo_review BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (project_id) REFERENCES projects (id)
+    )
+  `);
+
+  // Agents table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS agents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      skills TEXT,
+      availability TEXT DEFAULT 'available',
+      current_load INTEGER DEFAULT 0,
+      preferred_hours INTEGER DEFAULT 40,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Activity log
+  db.run(`
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT,
+      action TEXT NOT NULL,
+      entity_type TEXT,
+      entity_id INTEGER,
+      details TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Insert sample data if empty
+  db.get("SELECT COUNT(*) as count FROM projects", (err, row) => {
+    if (err) {
+      console.log('Error checking projects table:', err.message);
+      insertSampleData();
+    } else if (row && row.count === 0) {
+      insertSampleData();
+    }
+  });
+}
+
+function insertSampleData() {
+  console.log('Inserting sample data...');
+  
+  // Sample projects
+  const projects = [
+    ['Infralyze Consulting Website', 'Client website development', 'client', 'active', 65, 1],
+    ['World-Class Kanban System', 'Agency management platform', 'agency', 'active', 85, 1]
+  ];
+
+  projects.forEach(project => {
+    db.run(
+      'INSERT INTO projects (name, description, type, status, health_score, ceo_priority) VALUES (?, ?, ?, ?, ?, ?)',
+      project
+    );
+  });
+
+  // Sample agents
+  const agents = [
+    ['@pm', 'Project Manager', 'management,planning,communication', 'available', 2, 40],
+    ['@architect', 'System Architect', 'architecture,devops,scalability', 'available', 1, 40],
+    ['@dev', 'Full-Stack Developer', 'java,spring,react,flutter', 'available', 3, 40],
+    ['@qa', 'Quality Assurance', 'testing,security,ux', 'available', 1, 40]
+  ];
+
+  agents.forEach(agent => {
+    db.run(
+      'INSERT INTO agents (name, role, skills, availability, current_load, preferred_hours) VALUES (?, ?, ?, ?, ?, ?)',
+      agent
+    );
+  });
+
+  console.log('Sample data inserted');
+}
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  // Send initial data
+  sendInitialData(socket);
+
+  // Handle task updates
+  socket.on('task:update', (data) => {
+    updateTask(data, socket);
+  });
+
+  // Handle project updates
+  socket.on('project:update', (data) => {
+    updateProject(data, socket);
+  });
+
+  // Handle CEO approval
+  socket.on('ceo:approve', (data) => {
+    handleCEOApproval(data, socket);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+
+  // Handle request for initial data
+  socket.on('request:initial-data', () => {
+    console.log(`Client ${socket.id} requested initial data`);
+    sendInitialData(socket);
+  });
+});
+
+function sendInitialData(socket) {
+  // Get all data for initial load
+  db.all('SELECT * FROM projects ORDER BY ceo_priority, updated_at DESC', (err, projects) => {
+    if (!err) {
+      db.all(`
+        SELECT t.*, p.name as project_name 
+        FROM tasks t 
+        LEFT JOIN projects p ON t.project_id = p.id 
+        ORDER BY t.priority DESC, t.created_at
+      `, (err, tasks) => {
+        if (!err) {
+          db.all('SELECT * FROM agents ORDER BY role', (err, agents) => {
+            if (!err) {
+              db.all('SELECT * FROM activity_log ORDER BY created_at DESC LIMIT 20', (err, activity) => {
+                socket.emit('initial:data', {
+                  projects,
+                  tasks,
+                  agents,
+                  activity
+                });
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+function updateTask(data, socket) {
+  const { id, status, assigned_to, needs_ceo_review } = data;
+  
+  db.run(
+    'UPDATE tasks SET status = ?, assigned_to = ?, needs_ceo_review = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [status, assigned_to, needs_ceo_review || 0, id],
+    function(err) {
+      if (!err) {
+        // Log activity
+        db.run(
+          'INSERT INTO activity_log (user_id, action, entity_type, entity_id, details) VALUES (?, ?, ?, ?, ?)',
+          [data.user_id || 'system', 'task:updated', 'task', id, JSON.stringify(data)]
+        );
+
+        // Broadcast update to all clients
+        io.emit('task:updated', { id, ...data });
+        
+        // If task needs CEO review, send special alert
+        if (needs_ceo_review) {
+          io.emit('ceo:alert', {
+            type: 'task_review',
+            task_id: id,
+            message: `Task needs CEO review: ${data.title}`
+          });
+        }
+      }
+    }
+  );
+}
+
+function updateProject(data, socket) {
+  const { id, health_score, status } = data;
+  
+  db.run(
+    'UPDATE projects SET health_score = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [health_score, status, id],
+    function(err) {
+      if (!err) {
+        // Log activity
+        db.run(
+          'INSERT INTO activity_log (user_id, action, entity_type, entity_id, details) VALUES (?, ?, ?, ?, ?)',
+          [data.user_id || 'system', 'project:updated', 'project', id, JSON.stringify(data)]
+        );
+
+        // Broadcast update
+        io.emit('project:updated', { id, ...data });
+      }
+    }
+  );
+}
+
+function handleCEOApproval(data, socket) {
+  const { task_id, approved, comments } = data;
+  
+  db.run(
+    'UPDATE tasks SET needs_ceo_review = 0, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [approved ? 'approved' : 'rejected', task_id],
+    function(err) {
+      if (!err) {
+        // Log activity
+        db.run(
+          'INSERT INTO activity_log (user_id, action, entity_type, entity_id, details) VALUES (?, ?, ?, ?, ?)',
+          ['ceo', 'ceo:approved', 'task', task_id, JSON.stringify(data)]
+        );
+
+        // Broadcast approval
+        io.emit('ceo:decision', {
+          task_id,
+          approved,
+          comments,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+  );
+}
+
+// API Endpoints
+
+// CEO Dashboard
+app.get('/api/ceo/dashboard', (req, res) => {
+  db.all(`
+    SELECT 
+      (SELECT COUNT(*) FROM projects WHERE status = 'active') as active_projects,
+      (SELECT COUNT(*) FROM tasks WHERE needs_ceo_review = 1) as pending_review,
+      (SELECT COUNT(*) FROM tasks WHERE status = 'in_progress') as active_tasks,
+      (SELECT AVG(health_score) FROM projects WHERE status = 'active') as avg_health
+  `, (err, stats) => {
+    if (!err && stats.length > 0) {
+      res.json(stats[0]);
+    } else {
+      res.json({ active_projects: 0, pending_review: 0, active_tasks: 0, avg_health: 0 });
+    }
+  });
+});
+
+app.get('/api/ceo/pending-approvals', (req, res) => {
+  db.all(`
+    SELECT t.*, p.name as project_name 
+    FROM tasks t 
+    LEFT JOIN projects p ON t.project_id = p.id 
+    WHERE t.needs_ceo_review = 1 
+    ORDER BY t.priority DESC, t.created_at
+  `, (err, tasks) => {
+    if (!err) {
+      res.json(tasks);
+    } else {
+      res.json([]);
+    }
+  });
+});
+
+// Projects
+app.get('/api/projects', (req, res) => {
+  db.all('SELECT * FROM projects ORDER BY ceo_priority, updated_at DESC', (err, projects) => {
+    if (!err) {
+      res.json(projects);
+    } else {
+      res.json([]);
+    }
+  });
+});
+
+app.post('/api/projects', (req, res) => {
+  const { name, description, type } = req.body;
+  
+  db.run(
+    'INSERT INTO projects (name, description, type) VALUES (?, ?, ?)',
+    [name, description, type],
+    function(err) {
+      if (!err) {
+        res.json({ id: this.lastID, success: true });
+        
+        // Broadcast new project
+        io.emit('project:created', {
+          id: this.lastID,
+          name,
+          description,
+          type,
+          status: 'active',
+          health_score: 100
+        });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+});
+
+// Tasks
+app.get('/api/tasks', (req, res) => {
+  const { project_id, status, assigned_to } = req.query;
+  let query = 'SELECT t.*, p.name as project_name FROM tasks t LEFT JOIN projects p ON t.project_id = p.id';
+  const params = [];
+  
+  if (project_id || status || assigned_to) {
+    query += ' WHERE';
+    const conditions = [];
+    
+    if (project_id) {
+      conditions.push('t.project_id = ?');
+      params.push(project_id);
+    }
+    
+    if (status) {
+      conditions.push('t.status = ?');
+      params.push(status);
+    }
+    
+    if (assigned_to) {
+      conditions.push('t.assigned_to = ?');
+      params.push(assigned_to);
+    }
+    
+    query += ' ' + conditions.join(' AND ');
+  }
+  
+  query += ' ORDER BY t.priority DESC, t.created_at';
+  
+  db.all(query, params, (err, tasks) => {
+    if (!err) {
+      res.json(tasks);
+    } else {
+      res.json([]);
+    }
+  });
+});
+
+app.post('/api/tasks', (req, res) => {
+  const { project_id, title, description, priority } = req.body;
+  
+  db.run(
+    'INSERT INTO tasks (project_id, title, description, priority) VALUES (?, ?, ?, ?)',
+    [project_id, title, description, priority],
+    function(err) {
+      if (!err) {
+        res.json({ id: this.lastID, success: true });
+        
+        // Broadcast new task
+        io.emit('task:created', {
+          id: this.lastID,
+          project_id,
+          title,
+          description,
+          priority,
+          status: 'todo'
+        });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+});
+
+// Quick task creation (<30 seconds)
+app.post('/api/tasks/quick', (req, res) => {
+  const { title, project_id } = req.body;
+  
+  // Default values for quick creation
+  db.run(
+    'INSERT INTO tasks (project_id, title, description, priority, status) VALUES (?, ?, ?, ?, ?)',
+    [project_id || 1, title, 'Quickly created task', 'medium', 'todo'],
+    function(err) {
+      if (!err) {
+        res.json({ 
+          id: this.lastID, 
+          success: true,
+          message: `Task created in ${Date.now() - req.startTime}ms`
+        });
+        
+        io.emit('task:created', {
+          id: this.lastID,
+          project_id: project_id || 1,
+          title,
+          status: 'todo'
+        });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+});
+
+// Agents
+app.get('/api/agents', (req, res) => {
+  db.all('SELECT * FROM agents ORDER BY role', (err, agents) => {
+    if (!err) {
+      res.json(agents);
+    } else {
+      res.json([]);
+    }
+  });
+});
+
+// Activity feed
+app.get('/api/activity', (req, res) => {
+  const limit = parseInt(req.query.limit) || 20;
+  
+  db.all(
+    'SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?',
+    [limit],
+    (err, activity) => {
+      if (!err) {
+        res.json(activity);
+      } else {
+        res.json([]);
+      }
+    }
+  );
+});
+
+// GitHub Webhook Endpoints
+// ========================
+
+// GitHub webhook receiver
+app.post('/api/github/webhook', 
+  express.json(),
+  githubWebhook.verifySignature.bind(githubWebhook),
+  githubWebhook.handleWebhook.bind(githubWebhook)
+);
+
+// GitHub webhook status
+app.get('/api/github/webhook/status', (req, res) => {
+  res.json(githubWebhook.getStatus());
+});
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: 'connected',
+    websockets: io.engine.clientsCount
+  });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`
+  🚀 Jira Agency Kanban Backend
+  ==============================
+  Server running on port ${PORT}
+  
+  API Endpoints:
+  - GET  /api/ceo/dashboard          # CEO overview
+  - GET  /api/ceo/pending-approvals  # Tasks needing approval
+  - GET  /api/projects               # List all projects
+  - POST /api/projects              # Create project
+  - GET  /api/tasks                 # Filterable tasks
+  - POST /api/tasks                 # Create task
+  - POST /api/tasks/quick           # Quick task (<30s)
+  - GET  /api/agents                # List agents
+  - GET  /api/activity              # Activity feed
+  - GET  /api/health                # Health check
+  
+  GitHub Integration:
+  - POST /api/github/webhook        # GitHub webhook receiver
+  - GET  /api/github/webhook/status # Webhook status
+  
+  WebSocket Events:
+  - initial:data    # Initial data load
+  - task:created    # New task
+  - task:updated    # Task updated
+  - project:created # New project
+  - project:updated # Project updated
+  - ceo:alert       # Critical alert
+  - ceo:decision    # CEO approval decision
+  - github:event    # GitHub events (PR merged, issues, etc.)
+  - kanban:updated  # Kanban updates from GitHub
+  
+  Frontend: http://localhost:${PORT}/enhanced-dashboard.html
+  `);
+});

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Real Connection</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Testing WebSocket Connection</h1>
+    <div id="status">Connecting...</div>
+    <div id="data">Waiting for data...</div>
+    
+    <script>
+        const socket = io('http://localhost:3000');
+        
+        socket.on('connect', () => {
+            document.getElementById('status').innerHTML = '✅ Connected to WebSocket';
+            socket.emit('request:initial-data');
+        });
+        
+        socket.on('initial:data', (data) => {
+            document.getElementById('data').innerHTML = 
+                `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('status').innerHTML = '❌ Disconnected';
+        });
+    </script>
+</body>
+</html>

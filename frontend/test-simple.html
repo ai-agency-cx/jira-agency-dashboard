@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Dashboard Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .data { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Real-time Dashboard Connection Test</h1>
+    
+    <div id="status" class="status disconnected">Connecting to WebSocket server...</div>
+    
+    <div id="data" class="data">
+        <h3>Waiting for data...</h3>
+    </div>
+    
+    <button onclick="refreshData()">Refresh Data</button>
+    
+    <script>
+        const socket = io('http://localhost:3000');
+        
+        socket.on('connect', () => {
+            document.getElementById('status').className = 'status connected';
+            document.getElementById('status').innerHTML = '✅ Connected to WebSocket server';
+            socket.emit('request:initial-data');
+        });
+        
+        socket.on('initial:data', (data) => {
+            let html = '<h3>📊 Dashboard Data Received:</h3>';
+            
+            // Stats
+            html += '<h4>Projects:</h4>';
+            html += '<ul>';
+            data.projects.forEach(project => {
+                html += `<li>${project.name} (${project.health_score}% health, ${project.status})</li>`;
+            });
+            html += '</ul>';
+            
+            // Tasks if available
+            if (data.tasks && data.tasks.length > 0) {
+                html += '<h4>Tasks:</h4><ul>';
+                data.tasks.forEach(task => {
+                    html += `<li>${task.title} (${task.status})</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            // Activity if available
+            if (data.activity && data.activity.length > 0) {
+                html += '<h4>Recent Activity:</h4><ul>';
+                data.activity.slice(0, 3).forEach(activity => {
+                    html += `<li>${activity.action} - ${new Date(activity.created_at).toLocaleTimeString()}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            document.getElementById('data').innerHTML = html;
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('status').className = 'status disconnected';
+            document.getElementById('status').innerHTML = '❌ Disconnected from WebSocket server';
+        });
+        
+        socket.on('connect_error', (error) => {
+            document.getElementById('status').className = 'status disconnected';
+            document.getElementById('status').innerHTML = `❌ Connection error: ${error.message}`;
+        });
+        
+        // Handle real-time events
+        socket.on('task:created', (task) => {
+            const dataDiv = document.getElementById('data');
+            dataDiv.innerHTML = `<div style="background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                🆕 <strong>New Task Created:</strong> ${task.title}
+            </div>` + dataDiv.innerHTML;
+        });
+        
+        socket.on('project:updated', (project) => {
+            const dataDiv = document.getElementById('data');
+            dataDiv.innerHTML = `<div style="background: #cce5ff; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                🔄 <strong>Project Updated:</strong> ${project.name}
+            </div>` + dataDiv.innerHTML;
+        });
+        
+        function refreshData() {
+            if (socket.connected) {
+                socket.emit('request:initial-data');
+                const dataDiv = document.getElementById('data');
+                dataDiv.innerHTML = '<h3>🔄 Refreshing data...</h3>' + dataDiv.innerHTML;
+            }
+        }
+    </script>
+</body>
+</html>
