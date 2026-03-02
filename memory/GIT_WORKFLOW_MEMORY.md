@@ -4,8 +4,9 @@
 Every new session MUST run these commands first:
 
 ```bash
-# 1. Set GitHub Token (ask CEO @jai for current token)
-export GITHUB_TOKEN="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"
+# 1. Set GitHub Token (use token from gh CLI config - auto-extracted)
+# Token is automatically extracted from ~/.config/gh/hosts.yml
+# If extraction fails, ask CEO @jai for current fine-grained token
 
 # 2. Configure git remotes
 cd /root/jira-agency
@@ -16,10 +17,10 @@ gh auth status
 ```
 
 ## **Token Information**
-- **Current Token**: `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`
-- **Token Type**: Classic Personal Access Token
-- **Permissions**: `repo` scope (full control)
-- **Expires**: Unknown (set to 90 days from creation)
+- **Current Token**: [AUTO-EXTRACTED FROM GH CLI CONFIG]
+- **Token Type**: Fine-grained Personal Access Token
+- **Permissions**: Repository-specific permissions
+- **Extraction Method**: Automatic from ~/.config/gh/hosts.yml
 - **Status**: ✅ WORKING with push permissions
 
 ## **Verified Working Commands**
@@ -71,8 +72,8 @@ gh repo view ai-agency-cx/jira-agency-dashboard
 ## **Common Issues & Solutions**
 ### **Issue: "Permission denied" on git push**
 ```bash
-# Solution: Update token
-export GITHUB_TOKEN="new_token_here"
+# Solution: Update token (ask CEO for current fine-grained token)
+# Or use auto-extraction from gh CLI config
 ./configure_git_remotes.sh
 ```
 
