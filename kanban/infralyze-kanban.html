@@ -1,446 +1,226 @@
 <!DOCTYPE html>
-<!-- UPDATE: 2026-03-02 02:30:00 - @pm updated Kanban to reflect actual PR status. PRs #1-#4 all merged. -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📋 Infralyze Consulting - Kanban Board</title>
+    <title>infralyze - Kanban Board</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: #f8fafc; padding: 20px; }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 20px; background: #f8f9fa; }
         .container { max-width: 1400px; margin: 0 auto; }
-        
-        header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        .project-info h1 { color: #1e293b; font-size: 1.8rem; }
-        .project-info .subtitle { color: #64748b; margin-top: 5px; font-size: 0.9rem; }
-        
-        .back-link { 
-            color: #0ea5e9; 
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .back-link:hover { text-decoration: underline; }
-        
-        .kanban-board { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 15px; 
-            margin-bottom: 30px;
-        }
-        
-        .column { 
-            background: white; 
-            border-radius: 8px; 
-            padding: 15px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            min-height: 500px;
-        }
-        .column-header { 
-            font-weight: 600; 
-            padding-bottom: 10px; 
-            margin-bottom: 15px; 
-            border-bottom: 2px solid; 
-            font-size: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .backlog .column-header { color: #64748b; border-color: #94a3b8; }
-        .design .column-header { color: #7c3aed; border-color: #a78bfa; }
-        .progress .column-header { color: #0ea5e9; border-color: #38bdf8; }
-        .ceo-review .column-header { color: #f59e0b; border-color: #fbbf24; background: #fef3c7; padding: 10px 15px; border-radius: 6px; }
-        .done .column-header { color: #10b981; border-color: #34d399; }
-        
-        .card-count { 
-            background: rgba(0,0,0,0.1); 
-            padding: 2px 8px; 
-            border-radius: 10px; 
-            font-size: 0.8rem;
-        }
-        
-        .cards { min-height: 400px; }
-        
-        .card { 
-            background: #f1f5f9; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 6px; 
-            padding: 12px; 
-            margin-bottom: 10px; 
-            cursor: grab;
-            user-select: none;
-            transition: all 0.2s;
-        }
-        .card:active { cursor: grabbing; }
-        .card:hover { 
-            background: #e2e8f0; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .card-content { font-size: 0.9rem; margin-bottom: 8px; }
-        .card-meta { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-        
-        .assignee { 
-            background: #cbd5e1; 
-            padding: 2px 8px; 
-            border-radius: 10px; 
-        }
-        .assignee-pm { background: #bae6fd; color: #0369a1; }
-        .assignee-dev { background: #bbf7d0; color: #065f46; }
-        .assignee-qa { background: #fde68a; color: #92400e; }
-        .assignee-arch { background: #e9d5ff; color: #7c3aed; }
-        
-        .priority { 
-            font-size: 0.7rem; 
-            padding: 2px 6px; 
-            border-radius: 4px;
-        }
-        .priority-high { background: #fee2e2; color: #dc2626; }
-        .priority-medium { background: #fef3c7; color: #d97706; }
-        .priority-low { background: #d1fae5; color: #059669; }
-        
-        .status-badge {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            background: #10b981;
-            color: white;
-            margin-left: 5px;
-        }
-        
-        .controls { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-top: 30px;
-        }
-        
-        .control-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        
-        .btn-save { background: #0ea5e9; color: white; }
-        .btn-load { background: #10b981; color: white; }
-        .btn-export { background: #8b5cf6; color: white; }
-        .btn-import { background: #f59e0b; color: white; }
-        .btn-add { background: #ef4444; color: white; }
-        .btn-back { background: #64748b; color: white; }
-        
-        .instructions {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f9ff;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            color: #0369a1;
-        }
-        
-        .dragging { opacity: 0.5; }
-        .over { background: #f0f9ff; border: 2px dashed #0ea5e9; }
-        
-        @media (max-width: 1200px) {
-            .kanban-board { grid-template-columns: repeat(3, 1fr); }
-        }
-        
-        @media (max-width: 768px) {
-            .kanban-board { grid-template-columns: 1fr; }
-            header { flex-direction: column; align-items: flex-start; gap: 10px; }
-        }
+        .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .kanban { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; }
+        .column { background: white; border-radius: 10px; padding: 15px; min-width: 320px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .column h3 { margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid; display: flex; justify-content: space-between; align-items: center; }
+        .task-count { background: #e9ecef; padding: 2px 10px; border-radius: 12px; font-size: 14px; }
+        .task { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid; transition: transform 0.2s; }
+        .task:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .task-id { font-weight: bold; color: #6c757d; font-size: 14px; }
+        .task-agent { background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .task-notes { margin-top: 10px; color: #495057; font-size: 14px; line-height: 1.4; }
+        .task-time { font-size: 11px; color: #adb5bd; margin-top: 10px; font-family: monospace; }
+        .status-backlog { border-color: #9B9B9B; }
+        .status-todo { border-color: #4A90E2; }
+        .status-inprogress { border-color: #F5A623; }
+        .status-qatesting { border-color: #9013FE; }
+        .status-ceoreview { border-color: #F8E71C; }
+        .status-done { border-color: #7ED321; }
+        .footer { text-align: center; margin-top: 30px; color: #6c757d; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="project-info">
-                <h1>📋 Infralyze Consulting - Kanban Board</h1>
-                <div class="subtitle">
-                    Path: clients_projects/infralyze-consulting/ | 
-                    <a href="https://github.com/ai-agency-cx/infralyze-consulting" target="_blank" style="color: #0ea5e9;">GitHub</a> | 
-                    <a href="https://ai-agency-cx.github.io/infralyze-consulting/" target="_blank" style="color: #0ea5e9;">Live Site</a>
-                </div>
-            </div>
-            <a href="projects-dashboard.html" class="back-link">← Back to Projects Dashboard</a>
-        </header>
-        
-        <div class="kanban-board" id="kanbanBoard">
-            <!-- Backlog Column -->
-            <div class="column backlog" data-status="backlog">
-                <div class="column-header">
-                    <span>📋 Backlog</span>
-                    <span class="card-count" id="backlog-count">2</span>
-                </div>
-                <div class="cards" id="backlog-cards">
-                    <div class="card" draggable="true" data-id="1" data-priority="medium">
-                        <div class="card-content">Phase 4: Chat widget integration</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-arch">@architect</span>
-                            <span class="priority priority-medium">medium</span>
-                        </div>
-                    </div>
-                    <div class="card" draggable="true" data-id="2" data-priority="low">
-                        <div class="card-content">Advanced analytics dashboard</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-arch">@architect</span>
-                            <span class="priority priority-low">low</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="header">
+            <h1>infralyze - Kanban Board</h1>
+            <p>Last updated: Mon, Mar 9, 2026, 04:12:57 PM UTC</p>
+        </div>
+        <div class="kanban">
             
-            <!-- Design Column -->
-            <div class="column design" data-status="design">
-                <div class="column-header">
-                    <span>🎨 Design</span>
-                    <span class="card-count" id="design-count">1</span>
-                </div>
-                <div class="cards" id="design-cards">
-                    <div class="card" draggable="true" data-id="3" data-priority="high">
-                        <div class="card-content">Fix branding: InfraLive → Infralyze</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-dev">@dev</span>
-                            <span class="priority priority-high">high</span>
-                        </div>
-                    </div>
+            <div class="column">
+                <h3 style="border-color: #9B9B9B;">
+                    Backlog
+                    <span class="task-count">0</span>
+                </h3>
+                <div id="backlog-tasks">
+                    <p style="text-align: center; color: #adb5bd; padding: 20px;">No tasks in Backlog</p>
                 </div>
             </div>
-            
-            <!-- In Progress Column -->
-            <div class="column progress" data-status="progress">
-                <div class="column-header">
-                    <span>🔄 In Progress</span>
-                    <span class="card-count" id="progress-count">2</span>
+            <div class="column">
+                <h3 style="border-color: #4A90E2;">
+                    To Do
+                    <span class="task-count">1</span>
+                </h3>
+                <div id="todo-tasks">
+                    
+                <div class="task status-todo">
+                    <div class="task-header">
+                        <span class="task-id">bug-login-bug-after-password-reset</span>
+                        <span class="task-agent">@dev</span>
+                    </div>
+                    <div class="task-notes"># Bug Fix: Login bug after password reset
+
+## Description
+Users cannot login after password reset process
+
+## Created By
+- **Assignee**: @dev
+- **Priority**: high
+- **Created**: 2026-03-09 02:08:20
+
+## Issue Details
+
+### Symptoms
+- [ ] Describe what users are experiencing
+- [ ] Error messages (if any)
+- [ ] Steps to reproduce
+- [ ] Frequency of occurrence
+
+### Root Cause Analysis
+- [ ] Identify the underlying cause
+- [ ] Determine affected components
+- [ ] Check for similar issues
+- [ ] Review recent changes
+
+### Impact Assessment
+- **Severity**: Critical/High/Medium/Low
+- **Users Affected**: Number/percentage
+- **Business Impact**: Description
+- **Data Loss Risk**: Yes/No
+
+## Fix Requirements
+
+### Investigation
+- [ ] Reproduce the issue locally
+- [ ] Analyze logs and error messages
+- [ ] Identify exact code location
+- [ ] Understand the root cause
+
+### Solution Design
+- [ ] Propose fix approach
+- [ ] Consider edge cases
+- [ ] Plan for backward compatibility
+- [ ] Design test cases
+
+### Implementation
+- [ ] Apply the fix
+- [ ] Add defensive programming
+- [ ] Update error handling
+- [ ] Add logging for debugging
+
+## Testing Requirements
+
+### Verification Testing
+- [ ] Fix resolves the reported issue
+- [ ] No regression in existing functionality
+- [ ] Edge cases handled properly
+- [ ] Performance not degraded
+
+### Regression Testing
+- [ ] Run full test suite
+- [ ] Test related functionality
+- [ ] Performance testing (if applicable)
+- [ ] Security testing (if applicable)
+
+## Deployment Plan
+
+### Pre-Deployment
+- [ ] Code review completed
+- [ ] All tests passing
+- [ ] Rollback plan documented
+- [ ] Stakeholders notified
+
+### Deployment
+- [ ] Deploy to staging first
+- [ ] Verify fix in staging
+- [ ] Deploy to production
+- [ ] Monitor for issues
+
+### Post-Deployment
+- [ ] Verify fix in production
+- [ ] Monitor error rates
+- [ ] Update documentation
+- [ ] Close related tickets
+
+## Prevention Measures
+- [ ] Add automated tests to prevent recurrence
+- [ ] Update development guidelines
+- [ ] Consider architectural improvements
+- [ ] Schedule code review of similar code
+
+## Notes
+- This is a bug fix ticket
+- Time critical: high priority
+- Requires careful testing to prevent regression
+- Communication plan for users if needed (Priority: high)</div>
+                    <div class="task-time">Mon, Mar 9, 2026, 02:08:20 AM UTC</div>
                 </div>
-                <div class="cards" id="progress-cards">
-                    <div class="card" draggable="true" data-id="4" data-priority="high">
-                        <div class="card-content">Security & performance optimization</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-dev">@dev</span>
-                            <span class="priority priority-high">high</span>
-                        </div>
-                    </div>
-                    <div class="card" draggable="true" data-id="5" data-priority="high">
-                        <div class="card-content">Phase 2 testing (blocked)</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-qa">@qa</span>
-                            <span class="priority priority-high">high</span>
-                        </div>
-                    </div>
                 </div>
             </div>
-            
-            <!-- CEO Review Column (Special Lane) -->
-            <div class="column ceo-review" data-status="ceo-review">
-                <div class="column-header">
-                    <span>👑 CEO Review / Blocked</span>
-                    <span class="card-count" id="ceo-count">1</span>
-                </div>
-                <div class="cards" id="ceo-cards">
-                    <div class="card" draggable="true" data-id="7" data-priority="medium">
-                        <div class="card-content">Budget approval for new tools</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-pm">@pm</span>
-                            <span class="priority priority-medium">medium</span>
-                        </div>
+            <div class="column">
+                <h3 style="border-color: #F5A623;">
+                    In Progress
+                    <span class="task-count">2</span>
+                </h3>
+                <div id="inprogress-tasks">
+                    
+                <div class="task status-inprogress">
+                    <div class="task-header">
+                        <span class="task-id">test-fix</span>
+                        <span class="task-agent">@pm</span>
                     </div>
+                    <div class="task-notes">Testing fixed kanban script</div>
+                    <div class="task-time">Mon, Mar 9, 2026, 04:12:21 PM UTC</div>
+                </div>
+                <div class="task status-inprogress">
+                    <div class="task-header">
+                        <span class="task-id">test-fix</span>
+                        <span class="task-agent">@pm</span>
+                    </div>
+                    <div class="task-notes">Testing fixed kanban script</div>
+                    <div class="task-time">Mon, Mar 9, 2026, 04:12:57 PM UTC</div>
+                </div>
                 </div>
             </div>
-            
-            <!-- Done Column -->
-            <div class="column done" data-status="done">
-                <div class="column-header">
-                    <span>✅ Done</span>
-                    <span class="card-count" id="done-count">4</span>
+            <div class="column">
+                <h3 style="border-color: #9013FE;">
+                    QA Testing
+                    <span class="task-count">0</span>
+                </h3>
+                <div id="qatesting-tasks">
+                    <p style="text-align: center; color: #adb5bd; padding: 20px;">No tasks in QA Testing</p>
                 </div>
-                <div class="cards" id="done-cards">
-                    <div class="card" draggable="true" data-id="8" data-priority="medium">
-                        <div class="card-content">Phase 1: Design enhancements ✅</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-dev">@dev</span>
-                            <span class="priority priority-medium">medium</span>
-                            <span class="status-badge">PR #1 Merged</span>
-                        </div>
+            </div>
+            <div class="column">
+                <h3 style="border-color: #F8E71C;">
+                    CEO Review
+                    <span class="task-count">0</span>
+                </h3>
+                <div id="ceoreview-tasks">
+                    <p style="text-align: center; color: #adb5bd; padding: 20px;">No tasks in CEO Review</p>
+                </div>
+            </div>
+            <div class="column">
+                <h3 style="border-color: #7ED321;">
+                    Done
+                    <span class="task-count">1</span>
+                </h3>
+                <div id="done-tasks">
+                    
+                <div class="task status-done">
+                    <div class="task-header">
+                        <span class="task-id">security</span>
+                        <span class="task-agent">@pm</span>
                     </div>
-                    <div class="card" draggable="true" data-id="6" data-priority="high">
-                        <div class="card-content">Phase 2: Custom icons & features ✅</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-dev">@dev</span>
-                            <span class="priority priority-high">high</span>
-                            <span class="status-badge">PR #2 Merged</span>
-                        </div>
-                    </div>
-                    <div class="card" draggable="true" data-id="10" data-priority="high">
-                        <div class="card-content">Phase 3: SEO & analytics ✅</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-dev">@dev</span>
-                            <span class="priority priority-high">high</span>
-                            <span class="status-badge">PR #3 Merged</span>
-                        </div>
-                    </div>
-                    <div class="card" draggable="true" data-id="9" data-priority="low">
-                        <div class="card-content">Branding fix: InfraLive → Infralyze ✅</div>
-                        <div class="card-meta">
-                            <span class="assignee assignee-pm">@pm</span>
-                            <span class="priority priority-low">low</span>
-                            <span class="status-badge">PR #4 Merged</span>
-                        </div>
-                    </div>
+                    <div class="task-notes">Port 9001 now properly secured with Basic Auth - server replaced and tested</div>
+                    <div class="task-time">Mon, Mar 9, 2026, 08:31:33 AM UTC</div>
+                </div>
                 </div>
             </div>
         </div>
-        
-        <div class="controls">
-            <div class="control-buttons">
-                <button class="btn-save" onclick="saveBoard()">💾 Save Board</button>
-                <button class="btn-load" onclick="loadBoard()">📂 Load Saved</button>
-                <button class="btn-export" onclick="exportToTODO()">📝 Export to TODO.md</button>
-                <button class="btn-import" onclick="importFromTODO()">📋 Import from TODO.md</button>
-                <button class="btn-add" onclick="addCard()">➕ Add Card</button>
-                <a href="projects-dashboard.html" class="btn-back">← Dashboard</a>
-            </div>
-            
-            <div class="instructions">
-                <strong>Special "CEO Review" Lane:</strong> This column is for tasks that need your attention, approval, or are blocked waiting for your decision. Drag cards here when you need to review something.
-            </div>
+        <div class="footer">
+            <p>📊 <strong>Total Tasks: 4</strong> | 🎯 <strong>Project: infralyze</strong> | 📅 <strong>Last Updated: Mon, Mar 9, 2026, 04:12:57 PM UTC</strong></p>
+            <p>📍 Kanban Board Location: <code>/root/jira-agency/agency_projects/jira-agency-dashboard/kanban/infralyze-kanban.html</code></p>
         </div>
     </div>
-
-    <script>
-        // Simple drag and drop
-        let draggedCard = null;
-        
-        // Initialize all cards
-        document.querySelectorAll('.card').forEach(card => {
-            setupCard(card);
-        });
-        
-        function setupCard(card) {
-            card.addEventListener('dragstart', (e) => {
-                draggedCard = card;
-                card.classList.add('dragging');
-            });
-            
-            card.addEventListener('dragend', () => {
-                card.classList.remove('dragging');
-                draggedCard = null;
-                saveBoard();
-                updateCardCounts();
-            });
-        }
-        
-        // Setup columns as drop targets
-        document.querySelectorAll('.cards').forEach(column => {
-            column.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                column.classList.add('over');
-            });
-            
-            column.addEventListener('dragleave', () => {
-                column.classList.remove('over');
-            });
-            
-            column.addEventListener('drop', (e) => {
-                e.preventDefault();
-                column.classList.remove('over');
-                
-                if (draggedCard && column !== draggedCard.parentNode) {
-                    column.appendChild(draggedCard);
-                }
-            });
-        });
-        
-        // Update card counts
-        function updateCardCounts() {
-            const columns = ['backlog', 'design', 'progress', 'ceo-review', 'done'];
-            columns.forEach(col => {
-                const count = document.getElementById(`${col}-cards`).children.length;
-                document.getElementById(`${col}-count`).textContent = count;
-            });
-        }
-        
-        // Save/Load board state
-        function saveBoard() {
-            const state = {
-                backlog: getCardData('backlog-cards'),
-                design: getCardData('design-cards'),
-                progress: getCardData('progress-cards'),
-                ceoReview: getCardData('ceo-cards'),
-                done: getCardData('done-cards')
-            };
-            localStorage.setItem('infralyzeKanban', JSON.stringify(state));
-            console.log('Board saved');
-        }
-        
-        function loadBoard() {
-            const saved = localStorage.getItem('infralyzeKanban');
-            if (saved) {
-                try {
-                    const state = JSON.parse(saved);
-                    
-                    // Clear all columns
-                    ['backlog-cards', 'design-cards', 'progress-cards', 'ceo-cards', 'done-cards'].forEach(col => {
-                        document.getElementById(col).innerHTML = '';
-                    });
-                    
-                    // Re-add cards in saved order
-                    Object.entries(state).forEach(([column, cards]) => {
-                        const columnId = column === 'ceoReview' ? 'ceo-cards' : `${column}-cards`;
-                        const container = document.getElementById(columnId);
-                        
-                        cards.forEach(cardData => {
-                            const card = createCardElement(cardData);
-                            container.appendChild(card);
-                        });
-                    });
-                    
-                    updateCardCounts();
-                    alert('Board loaded!');
-                } catch (e) {
-                    alert('Error loading board: ' + e.message);
-                }
-            } else {
-                alert('No saved board found.');
-            }
-        }
-        
-        function getCardData(columnId) {
-            const cards = document.getElementById(columnId).querySelectorAll('.card');
-            return Array.from(cards).map(card => ({
-                id: card.dataset.id,
-                content: card.querySelector('.card-content').textContent,
-                assignee: card.querySelector('.assignee').textContent,
-                priority: card.dataset.priority
-            }));
-        }
-        
-        function createCardElement(cardData) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.draggable = true;
-            card.dataset.id = cardData.id;
-            card.dataset.priority = cardData.priority;
-            
+</body>
+</html>

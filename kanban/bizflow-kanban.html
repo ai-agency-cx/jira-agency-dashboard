@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<!-- UPDATE: 2026-03-12 03:24:29 - @qa moved validation-test to Done - Validation test completed -->
+<!-- UPDATE: 2026-03-12 03:13:36 - @qa moved test-task to In Progress - Testing kanban update -->
+<!-- UPDATE: 2026-03-05 04:33:01 - @dev1 moved module-construction-registration to done - Construction module registration complete: 16 API endpoints, automatic registration, error handling -->
+<!-- UPDATE: 2026-03-05 04:22:48 - @dev2 moved ui-construction-project to done - 6 construction project components complete: Dashboard, Form, Timeline, BudgetTracker, TeamAssignment, ProjectCard -->
+<!-- UPDATE: 2026-03-05 04:14:00 - @mobile-dev moved mobile-push-notifications to inprogress - Starting push notification implementation for task assignments and safety alerts -->
+<!-- UPDATE: 2026-03-05 04:13:53 - @mobile-dev moved mobile-core-features to done - Phase 2 Task 1 complete: Offline task management with SQLite, background sync, photo handling -->
+<!-- UPDATE: 2026-03-05 04:10:38 - @dev1 moved module-construction-registration to inprogress - Starting construction module registration implementation -->
+<!-- UPDATE: 2026-03-05 04:10:31 - @dev1 moved module-construction-services to done - Construction module services complete: TaskService, ProjectService, SafetyService, EquipmentService -->
+<!-- UPDATE: 2026-03-05 03:55:19 - @dev2 moved ui-construction-project to inprogress - Starting construction project components implementation -->
+<!-- UPDATE: 2026-03-05 03:55:11 - @dev2 moved ui-construction-task to done - Construction task components complete: TaskCard, TaskForm, TaskList, SafetyRequirements, EquipmentList -->
+<!-- UPDATE: 2026-03-05 03:51:39 - @mobile-dev moved mobile-core-features to inprogress - Implementing mobile core features: task management, offline sync, push notifications -->
+<!-- UPDATE: 2026-03-05 03:51:31 - @mobile-dev moved mobile-setup to done - Mobile app setup complete: Expo + Camera + Navigation + 6 screens + offline support -->
+<!-- UPDATE: 2026-03-05 03:50:14 - @ui-dev moved mobile-ui-screens to done - 6 mobile screens implemented: Login, Dashboard, Tasks, Camera, Chat, Profile -->
+<!-- UPDATE: 2026-03-05 03:37:16 - @dev1 moved module-construction-services to inprogress - Starting construction module services implementation -->
+<!-- UPDATE: 2026-03-05 03:37:10 - @dev1 moved module-construction-schema to done - Construction module schema complete with types, field definitions, and validation rules -->
+<!-- UPDATE: 2026-03-05 03:33:39 - @ui-dev moved mobile-ui-screens to inprogress - Implementing mobile UI screens from Stitch designs -->
+<!-- UPDATE: 2026-03-05 03:33:33 - @mobile-dev moved mobile-setup to inprogress - Starting React Native/Expo setup and mobile foundation -->
+<!-- UPDATE: 2026-03-05 03:29:37 - @dev2 moved ui-construction-task to inprogress - Starting construction task UI components -->
+<!-- UPDATE: 2026-03-05 03:29:26 - @dev1 moved module-construction-schema to inprogress - Starting construction module schema definition -->
+<!-- UPDATE: 2026-03-05 03:24:08 - @ui-dev moved ui-platform-landing to done - BizSuite landing page implemented from Stitch designs -->
+<!-- UPDATE: 2026-03-05 03:17:13 - @dev2 moved frontend-dynamic-forms to done - Dynamic form generator complete with all field types, Formik integration, and comprehensive testing -->
+<!-- UPDATE: 2026-03-05 03:16:52 - @ui-dev moved ui-platform-landing to done - Landing page implemented from Stitch designs using MUI components -->
+<!-- UPDATE: 2026-03-05 03:15:49 - @dev2 moved frontend-dynamic-forms to done - Dynamic form generator complete with all field types, validation, and tests -->
+<!-- UPDATE: 2026-03-05 03:13:55 - @dev1 moved db-migration-scripts to done - Migration scripts created with dry-run, backup, rollback, and audit trail -->
+<!-- UPDATE: 2026-03-05 03:13:49 - @dev1 moved service-module-registry to done - Module registry service implemented with Redis caching and comprehensive validation -->
+<!-- UPDATE: 2026-03-05 03:13:44 - @dev1 moved db-abstract-entities to done - Abstract entity tables created with Prisma schema, migrations, and tests -->
+<!-- UPDATE: 2026-03-05 03:12:37 - @dev1 moved db-migration-scripts to done - Created comprehensive migration script to convert construction data to abstract entity system. Script handles projects, tasks, field definitions, relationships, audit logs, backup, rollback, and dry-run mode. -->
+<!-- UPDATE: 2026-03-05 03:03:58 - @dev1 moved db-migration-scripts to inprogress -  -->
+<!-- UPDATE: 2026-03-05 03:03:52 - @dev1 moved service-module-registry to done - Implemented Module Registry Service with Redis caching, module validation, dependency management, and comprehensive tests (27 tests passing). -->
+<!-- UPDATE: 2026-03-05 03:02:21 - @dev2 moved frontend-dynamic-forms to inprogress - Starting dynamic form generator implementation -->
+<!-- UPDATE: 2026-03-05 03:01:11 - @dev2 moved frontend-dynamic-forms to inprogress - Starting dynamic form generator implementation -->
+<!-- UPDATE: 2026-03-05 03:01:05 - @dev2 moved frontend-module-loader to done - ModuleLoader component complete with tests, docs, and TypeScript support -->
+<!-- UPDATE: 2026-03-05 03:00:17 - @ui-dev moved ui-platform-landing to inprogress - Implementing BizSuite landing page from Stitch designs -->
+<!-- UPDATE: 2026-03-05 03:00:15 - @ui-dev moved ui-platform-landing to inprogress - Implementing BizSuite landing page from new Stitch designs -->
+<!-- UPDATE: 2026-03-05 02:59:46 - @dev2 moved frontend-module-loader to done - Completed ModuleLoader component with context, hooks, error boundaries, tests, and documentation -->
+<!-- UPDATE: 2026-03-05 02:56:00 - @dev1 moved service-module-registry to inprogress -  -->
+<!-- UPDATE: 2026-03-05 02:55:48 - @dev1 moved db-abstract-entities to done - Created Prisma schema for abstract entity system with Entity, FieldDefinition, EntityRelationship, and EntityAuditLog models. Added migration and schema validation tests. -->
+<!-- UPDATE: 2026-03-05 02:48:26 - @dev2 moved ui-platform-landing to todo - BizSuite landing page - third task -->
+<!-- UPDATE: 2026-03-05 02:48:22 - @dev2 moved frontend-dynamic-forms to todo - Dynamic form generator - second task -->
+<!-- UPDATE: 2026-03-05 02:48:17 - @dev1 moved db-migration-scripts to todo - Migration scripts - third task -->
+<!-- UPDATE: 2026-03-05 02:48:12 - @dev1 moved service-module-registry to todo - Module registry service - next task -->
+<!-- UPDATE: 2026-03-05 02:48:06 - @dev2 moved frontend-module-loader to inprogress - Starting module loader component implementation -->
+<!-- UPDATE: 2026-03-05 02:48:01 - @dev1 moved db-abstract-entities to inprogress - Starting abstract entity tables implementation -->
+<!-- UPDATE: 2026-03-05 02:47:36 - @dev2 moved frontend-module-loader to inprogress -  -->
+<!-- UPDATE: 2026-03-05 02:47:05 - @dev1 moved db-abstract-entities to inprogress -  -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-admin-configuration to todo - Platform-wide configuration interface -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-admin-entities to todo - UI for managing entity types and fields -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-admin-modules to todo - Admin interface for module management -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-construction-kanban to todo - Drag-and-drop kanban board for construction tasks -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-construction-project to todo - UI components for construction project management -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved ui-construction-task to todo - Construction-specific UI components for tasks -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved testing-construction-module to todo - Tests for construction-specific functionality -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved testing-module-registry to todo - Tests for module registration and discovery -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved testing-entity-service to todo - Comprehensive tests for EntityService -->
+<!-- UPDATE: 2026-03-05 00:47:43 - @dev moved migration-rollback-test to todo - Test rollback procedure for migration failures -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved migration-production-execute to todo - Execute production data migration to new schema -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved migration-test-environment to todo - Set up test environment for migration validation -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved frontend-module-navigation to todo - Create dynamic navigation based on active modules -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved frontend-dynamic-forms to todo - Implement dynamic form generator from field definitions -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved frontend-module-loader to todo - Create React component to dynamically load modules -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved module-construction-registration to todo - Register construction module with platform -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved module-construction-services to todo - Implement construction-specific business logic services -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved module-construction-schema to todo - Define construction module entities and fields -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved api-module-routes to todo - Implement API routes for module management -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved api-entity-routes to todo - Create generic API routes for entity operations -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved service-module-registry to todo - Implement module registry service for module management -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved service-field-validator to todo - Create field validation engine based on field definitions -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved service-entity-service to todo - Implement generic EntityService for CRUD operations -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved db-backup-system to todo - Create backup and rollback system for migration safety -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved db-migration-scripts to todo - Create scripts to migrate construction data to abstract entities -->
+<!-- UPDATE: 2026-03-05 00:47:42 - @dev moved db-abstract-entities to todo - Create abstract entity tables in Prisma schema -->
+<!-- UPDATE: 2026-03-04 21:45:27 - @dev moved ui-design-settings to todo - UI design for BizFlow Platform -->
+<!-- UPDATE: 2026-03-04 21:45:27 - @dev moved ui-design-mobile-home to todo - UI design for BizFlow Platform -->
+<!-- UPDATE: 2026-03-04 21:45:27 - @dev moved ui-design-project-overview to todo - UI design for BizFlow Platform -->
+<!-- UPDATE: 2026-03-04 21:45:27 - @dev moved ui-design-task-detail to todo - UI design for BizFlow Platform -->
+<!-- UPDATE: 2026-03-04 21:45:27 - @dev moved ui-design-photo-upload to todo - UI design for BizFlow Platform -->
+<!-- UPDATE: 2026-03-04 21:45:21 - @dev moved ui-design-kanban to done - Kanban board design complete: Construction task management with drag-and-drop, priority indicators -->
+<!-- UPDATE: 2026-03-04 21:45:16 - @dev moved ui-design-dashboard to done - Dashboard design complete: Project overview with construction metrics and quick actions -->
+<!-- UPDATE: 2026-03-04 21:45:10 - @dev moved ui-design-login to done - Login screen design complete: Construction-themed authentication with safety colors -->
+<!-- UPDATE: 2026-03-04 13:57:42 - @dev moved env-configuration to done - Environment configuration complete: .env files, config service, environment-based settings -->
+<!-- UPDATE: 2026-03-04 13:57:35 - @dev moved api-documentation to done - API documentation complete: Comprehensive API_DOCUMENTATION.md with all endpoints, examples, authentication, socket events -->
+<!-- UPDATE: 2026-03-04 13:57:17 - @dev moved setup-backend to done - Backend foundation complete: Task service, Photo service, Socket.io, API routes, database migrations, authentication -->
+<!-- UPDATE: 2026-03-04 11:37:23 - @dev moved db-migrations to done - Database migrations complete: Prisma schema with all tables (users, projects, tasks, photos, comments), enums, indexes -->
+<!-- UPDATE: 2026-03-04 11:36:45 - @dev moved socketio-setup to done - Socket.io service complete: 562 lines with real-time updates, Redis adapter, event handling, room management -->
+<!-- UPDATE: 2026-03-04 11:36:37 - @dev moved photo-service to done - Photo service complete: 676 lines with upload/download, compression, metadata, S3/local abstraction -->
+<!-- UPDATE: 2026-03-04 11:36:28 - @dev moved task-service to done - Task service complete: 641 lines of TypeScript with CRUD operations, assignments, status transitions, filtering -->
+<!-- UPDATE: 2026-03-04 11:35:45 - @dev moved react-setup to done - Frontend setup complete: React 18 + TypeScript + Vite, Material-UI theme, auth pages, dashboard, Redux, API client -->
+<!-- UPDATE: 2026-03-04 11:21:00 - @qa moved setup-qa to done - Testing framework complete: Jest for backend, Vitest for frontend, test data, API collections, coverage reporting -->
+<!-- UPDATE: 2026-03-04 11:08:53 - @dev moved react-setup to todo - React 18 + TypeScript + Vite + Material-UI setup -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved logging-setup to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved health-checks to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved db-migrations to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved env-configuration to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved api-documentation to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved socketio-setup to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:10 - @dev moved photo-service to todo - Day 1 backend task -->
+<!-- UPDATE: 2026-03-04 11:08:00 - @dev moved task-service to todo - Task service: Task management, assignments, status transitions -->
+<!-- UPDATE: 2026-03-04 11:07:54 - @qa moved setup-qa to todo - Setup testing framework: Jest for backend, Vitest for frontend, test data, API testing collection -->
+<!-- UPDATE: 2026-03-04 10:59:23 - @architect moved architecture-decisions to done - Final architecture approved: VPS-first, Prisma (free), local file storage, Docker everywhere -->
+<!-- UPDATE: 2026-03-04 10:48:07 - @dev moved setup-backend to inprogress - Created Prisma schema, Express server, authentication, project services, and file storage abstraction -->
+<!-- UPDATE: 2026-03-04 10:47:53 - @architect moved architecture-design to done - VPS-first architecture designed with AWS abstraction layer -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏗️ BizFlow Platform - Kanban Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .project-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .project-title h1 {
+            font-size: 28px;
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .project-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .meta-item strong {
+            color: #333;
+        }
+        
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .column {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .column-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .task-count {
+            background: #f0f0f0;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 200px;
+        }
+        
+        .task {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s ease;
+            cursor: move;
+        }
+        
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .task-id {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .task-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .task-agent {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .task-due {
+            color: #f44336;
+            font-weight: 500;
+        }
+        
+        .status-backlog { border-left-color: #9e9e9e; }
+        .status-todo { border-left-color: #2196f3; }
+        .status-inprogress { border-left-color: #ff9800; }
+        .status-review { border-left-color: #9c27b0; }
+        .status-done { border-left-color: #4caf50; }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 40px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 16px;
+            }
+            
+            .project-title h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="project-title">
+                <h1>🏗️ BizFlow Platform</h1>
+            </div>
+            <div class="project-meta">
+                <div class="meta-item">
+                    <span>📅 Start Date:</span>
+                    <strong>2026-03-04</strong>
+                </div>
+                <div class="meta-item">
+                    <span>🎯 Target MVP:</span>
+                    <strong>2026-03-14</strong>
+                </div>
+                <div class="meta-item">
+                    <span>⏱️ Timeline:</span>
+                    <strong>7-10 days</strong>
+                </div>
+                <div class="meta-item">
+                    <span>👥 Team:</span>
+                    <strong>@pm, @architect, @dev, @qa</strong>
+                </div>
+                <div class="meta-item">
+                    <span>📊 Status:</span>
+                    <strong style="color: #ff9800;">Development Started</strong>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 40%"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value">40%</div>
+                    <div class="stat-label">Overall Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="kanban-board">
+            <!-- Backlog Column -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        📋 Backlog
+                        <span class="task-count">1</span>
+                    </div>
+                </div>
+                <div class="tasks">
+                    <div class="task status-backlog" data-task-id="setup-frontend" data-status="backlog">
+                        <div class="task-header">
+                            <div class="task-id">CSB-004</div>
+                        </div>
+                        <div class="task-title">Setup Frontend React App</div>
+                        <div class="task-description">Initialize React 18 + TypeScript + Vite with Material-UI. Create basic project dashboard and authentication pages.</div>
+                        <div class="task-meta">
+                            <div class="task-agent">@dev</div>
+                            <div class="task-due">Due: Day 2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- To Do Column -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        📝 To Do
+                        <span class="task-count">2</span>
+                    </div>
+                </div>
+                <div class="tasks">
+                    <div class="task status-todo" data-task-id="setup-mobile" data-status="todo">
+                        <div class="task-header">
+                            <div class="task-id">CSB-005</div>
+                        </div>
+                        <div class="task-title">Setup Mobile App (React Native)</div>
+                        <div class="task-description">Initialize React Native + Expo. Create basic navigation and camera integration for photo uploads.</div>
+                        <div class="task-meta">
+                            <div class="task-agent">@dev</div>
+                            <div class="task-due">Due: Day 3</div>
+                        </div>
+                    </div>
+                    
+                    <div class="task status-todo" data-task-id="setup-qa" data-status="done">
+                        <div class="task-header">
+                            <div class="task-id">CSB-006</div>
+                        </div>
+                        <div class="task-title">Setup Testing Framework</div>
+                        <div class="task-description">Configure Jest for backend, Vitest for frontend. Create acceptance criteria and test data.</div>
+                        <div class="task-meta">
+                            <div class="task-agent">@qa</div>
+                            <div class="task-due">Due: Day 1</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- In Progress Column -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        🔄 In Progress
+                        <span class="task-count">1</span>
+                    </div>
+                </div>
+                <div class="tasks">
+                    <div class="task status-inprogress" data-task-id="setup-backend" data-status="done">
+                        <div class="task-header">
+                            <div class="task-id">CSB-001</div>
+                        </div>
+                        <div class="task-title">Setup Backend API</div>
+                        <div class="task-description">Initialize Node.js + Express + TypeScript. Create authentication, project, and task APIs. Setup Prisma with PostgreSQL.</div>
+                        <div class="task-meta">
+                            <div class="task-agent">@dev</div>
+                            <div class="task-due">Due: Day 1</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Column -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        👁️ Review
+                        <span class="task-count">0</span>
+                    </div>
+                </div>
+                <div class="tasks">
+                    <!-- Empty for now -->
+                </div>
+            </div>
+            
+            <!-- Done Column -->
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">
+                        ✅ Done
+                        <span class="task-count">0</span>
+                    </div>
+                </div>
+                <div class="tasks">
+                    <!-- Empty for now -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="last-updated" class="footer">
+            Last updated: 2026-03-04 10:35:00 by @pm
+        </div>
+    </div>
+
+    <script>
+        // Simple drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tasks = document.querySelectorAll('.task');
+            const columns = document.querySelectorAll('.tasks');
+            
+            tasks.forEach(task => {
+                task.setAttribute('draggable', 'true');
+                
+                task.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', task.dataset.taskId);
+                    task.classList.add('dragging');
+                });
+                
+                task.addEventListener('dragend', () => {
+                    task.classList.remove('dragging');
+                });
+            });
+            
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    column.classList.add('drag-over');
+                });
+                
+                column.addEventListener('dragleave', () => {
+                    column.classList.remove('drag-over');
+                });
+                
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    column.classList.remove('drag-over');
+                    
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    const task = document.querySelector(`[data-task-id="${taskId}"]`);
+                    const oldColumn = task.parentElement;
+                    
+                    if (oldColumn !== column) {
+                        column.appendChild(task);
+                        
+                        // Update task count
+                        updateTaskCounts();
+                        
+                        // Send update to server (simulated)
+                        console.log(`Task ${taskId} moved to new column`);
+                    }
+                });
+            });
+            
+            function updateTaskCounts() {
+                document.querySelectorAll('.column').forEach(column => {
+                    const tasks = column.querySelectorAll('.task').length;
+                    const countElement = column.querySelector('.task-count');
+                    if (countElement) {
+                        countElement.textContent = tasks;
+                    }
+                });
+            }
+            
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                console.log('Auto-refreshing Kanban...');
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
